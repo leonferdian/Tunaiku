@@ -183,6 +183,31 @@
             margin-bottom: 5px;
         }
         
+        .copy-button {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .copy-button:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .copy-button.copied {
+            background: rgba(76, 175, 80, 0.8);
+            border-color: rgba(76, 175, 80, 1);
+        }
+        
         .cta-button {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
@@ -296,6 +321,9 @@
                 <p>Masukkan kode di bawah saat pendaftaran untuk mendapat approval lebih mudah:</p>
                 <div class="referral-code">
                     <div class="code-display">MLEOEVW</div>
+                    <button class="copy-button" onclick="copyReferralCode()">
+                        📋 Copy Kode
+                    </button>
                     <small>*Kode referral WAJIB diisi untuk disetujui</small>
                 </div>
             </div>
@@ -348,16 +376,59 @@
         `;
         document.head.appendChild(style);
         
+        // Add copy referral code function
+        function copyReferralCode() {
+            const code = 'MLEOEVW';
+            const button = document.querySelector('.copy-button');
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code).then(() => {
+                    // Success feedback
+                    button.classList.add('copied');
+                    button.innerHTML = '✅ Tersalin!';
+                    
+                    setTimeout(() => {
+                        button.classList.remove('copied');
+                        button.innerHTML = '📋 Copy Kode';
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback for clipboard API failure
+                    fallbackCopy(code, button);
+                });
+            } else {
+                // Fallback for browsers without clipboard API
+                fallbackCopy(code, button);
+            }
+        }
+        
+        function fallbackCopy(text, button) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                button.classList.add('copied');
+                button.innerHTML = '✅ Tersalin!';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '📋 Copy Kode';
+                }, 2000);
+            } catch (err) {
+                button.innerHTML = '❌ Gagal';
+                setTimeout(() => {
+                    button.innerHTML = '📋 Copy Kode';
+                }, 1500);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
         // Auto-highlight referral code on click
         document.querySelector('.code-display').addEventListener('click', function() {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText('MLEOEVW').then(() => {
-                    this.style.background = 'rgba(76, 175, 80, 0.3)';
-                    setTimeout(() => {
-                        this.style.background = 'transparent';
-                    }, 1000);
-                });
-            }
+            copyReferralCode();
         });
     </script>
 </body>
